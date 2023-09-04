@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Document</title>
+		<style>
+			.container {
+				width: 100vw;
+				height: 100vh;
+				background: url('https://nh-playlet.oss-cn-hangzhou.aliyuncs.com/static/bg.jpg') no-repeat;
+				background-size: cover;
+			}
+		</style>
+	</head>
+	<body class="container">
+		<button><a href="https://nh-playlet.nuohe.com.cn/apkiaa/iaa1.apk">apk下载</a></button>
+		<button><a href="weixin://">微信</a></button>
+		<button><a href="weixin://dl/business/?t=fShIYIfhtam">小程序</a></button>
+		<p>js</p>
+		<button onclick="apkFn()">apk</button>
+		<button onclick="apkFn()">微信</button>
+		<button onclick="miniFn()">小程序</button>
+		<button onclick="go()">小程序js</button>
+	</body>
+	<script>
+		var params = new URLSearchParams(location.search);
+		console.log('@params', params)
+		for (var p of params) {
+			console.log('@', p);
+		}
+		const apkFn = () => {
+			window.location.href = 'https: //nh-playlet.nuohe.com.cn/apkiaa/iaa1.apk'
+		}
+		const go = () => {
+			window.location.href = 'weixin://dl/business/?t=fShIYIfhtam'
+		}
+
+		const openWeChat = () => {
+			var userAgent = navigator.userAgent.toLowerCase();
+
+			if (userAgent.match(/MicroMessenger/i)) {
+				// 用户在微信内部打开页面
+				alert('您已在微信内部');
+			} else {
+				// 用户不在微信内部，通过浏览器打开微信
+				window.location.href = 'weixin://';
+			}
+		}
+		const miniFn = () => {
+			fetch(
+					"https://api.weixin.qq.com/cgi-bin/token?appid=wx523011ef7aed165e&secret=bb6efecdd05926bc9fcbade7a43fd969&grant_type=client_credential"
+				)
+				.then(response => response.json())
+				.then(res1 => {
+					console.log('@res1', res1);
+					fetch("https://api.weixin.qq.com/wxa/generatescheme?access_token=" + res1.access_token, {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify({
+								jump_wxa: {
+									path: "/pages/client/index",
+									query: "params=" + '123',
+									env_version: "trial"
+								},
+								is_expire: true,
+								expire_type: 1,
+								expire_interval: 1
+							})
+						})
+						.then(response => response.json())
+						.then(res2 => {
+							console.log('@res2', res2);
+							let a = document.createElement("a");
+							a.href = res2.openlink;
+							document.body.appendChild(a);
+							a.click();
+							document.body.removeChild(a);
+						})
+						.catch(err => {
+							console.log(err);
+						});
+				})
+				.catch(err => {
+					console.log(err);
+				});
+		}
+	</script>
+
+</html>
